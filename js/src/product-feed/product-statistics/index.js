@@ -56,7 +56,7 @@ const ProductStatistics = () => {
 							<SummaryNumber
 								key="active"
 								label={ __(
-									'Active / Partially Active',
+									'Active',
 									'google-listings-and-ads'
 								) }
 								value={ data.statistics.active }

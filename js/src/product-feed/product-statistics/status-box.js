@@ -102,7 +102,7 @@ function FeedStatus() {
 			<FlexItem>
 				<GridiconCheckmarkCircle />
 				{ __(
-					'Standard free listings setup completed',
+					'Free listings setup completed',
 					'google-listings-and-ads'
 				) }
 			</FlexItem>
