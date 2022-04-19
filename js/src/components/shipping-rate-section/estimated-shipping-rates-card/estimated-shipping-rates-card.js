@@ -14,7 +14,7 @@ import VerticalGapLayout from '.~/components/vertical-gap-layout';
 import useStoreCurrency from '.~/hooks/useStoreCurrency';
 import groupShippingRatesByMethodCurrencyRate from './groupShippingRatesByMethodCurrencyRate';
 import ShippingRateInputControl from './shipping-rate-input-control';
-import AddRateFormModal from './add-rate-form-modal';
+import EditRateFormModal from './edit-rate-form-modal';
 import { SHIPPING_RATE_METHOD } from '.~/constants';
 import isNonFreeFlatShippingRate from '.~/utils/isNonFreeFlatShippingRate';
 
@@ -207,7 +207,7 @@ export default function EstimatedShippingRatesCard( {
 								</Button>
 							}
 							modal={
-								<AddRateFormModal
+								<EditRateFormModal
 									countryOptions={ remainingCountries }
 									initialValues={ {
 										countries: remainingCountries,

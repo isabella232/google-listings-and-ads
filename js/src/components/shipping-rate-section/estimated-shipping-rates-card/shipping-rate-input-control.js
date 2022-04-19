@@ -69,6 +69,7 @@ const ShippingRateInputControl = ( {
 							}
 							modal={
 								<EditRateFormModal
+									isEdit
 									countryOptions={ countryOptions }
 									initialValues={ value }
 									onSubmit={ onChange }
