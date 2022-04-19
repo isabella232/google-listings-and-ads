@@ -8,10 +8,8 @@ import { noop } from 'lodash';
 /**
  * Internal dependencies
  */
-import AppButtonModalTrigger from '.~/components/app-button-modal-trigger';
 import AppButton from '.~/components/app-button';
 import AppInputPriceControl from '.~/components/app-input-price-control';
-import EditRateFormModal from './edit-rate-form-modal';
 import './shipping-rate-input-control.scss';
 import ShippingRateInputControlLabelText from './shipping-rate-input-control-label-text';
 
@@ -27,15 +25,13 @@ import ShippingRateInputControlLabelText from './shipping-rate-input-control-lab
  *
  * @param {Object} props
  * @param {ShippingRateGroup} props.value Aggregate, rat: Array object to be used as the initial value.
- * @param {Array<CountryCode>} props.countryOptions Array of country codes options, to be used as options in AppCountrySelect.
  * @param {(newGroup: ShippingRateGroup) => void} props.onChange Called when shipping rate group changes.
- * @param {() => void} props.onDelete Called when users clicked on the Delete button.
+ * @param {() => void} props.onEditClick Called when users clicked on the "Edit" text.
  */
 const ShippingRateInputControl = ( {
-	countryOptions,
 	value,
 	onChange = noop,
-	onDelete,
+	onEditClick,
 } ) => {
 	const { countries, currency, rate } = value;
 
@@ -58,25 +54,13 @@ const ShippingRateInputControl = ( {
 						<ShippingRateInputControlLabelText
 							countries={ countries }
 						/>
-						<AppButtonModalTrigger
-							button={
-								<AppButton
-									className="gla-shipping-rate-input-control__edit-button"
-									isTertiary
-								>
-									{ __( 'Edit', 'google-listings-and-ads' ) }
-								</AppButton>
-							}
-							modal={
-								<EditRateFormModal
-									isEdit
-									countryOptions={ countryOptions }
-									initialValues={ value }
-									onSubmit={ onChange }
-									onDelete={ onDelete }
-								/>
-							}
-						/>
+						<AppButton
+							className="gla-shipping-rate-input-control__edit-button"
+							isTertiary
+							onClick={ onEditClick }
+						>
+							{ __( 'Edit', 'google-listings-and-ads' ) }
+						</AppButton>
 					</div>
 				}
 				suffix={ currency }

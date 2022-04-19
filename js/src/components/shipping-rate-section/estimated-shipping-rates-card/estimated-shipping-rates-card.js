@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import GridiconPlusSmall from 'gridicons/dist/plus-small';
@@ -9,7 +10,6 @@ import GridiconPlusSmall from 'gridicons/dist/plus-small';
  * Internal dependencies
  */
 import Section from '.~/wcdl/section';
-import AppButtonModalTrigger from '.~/components/app-button-modal-trigger';
 import VerticalGapLayout from '.~/components/vertical-gap-layout';
 import useStoreCurrency from '.~/hooks/useStoreCurrency';
 import groupShippingRatesByMethodCurrencyRate from './groupShippingRatesByMethodCurrencyRate';
@@ -44,6 +44,7 @@ export default function EstimatedShippingRatesCard( {
 	onChange,
 } ) {
 	const { code: currencyCode } = useStoreCurrency();
+	const [ modalProps, setModalProps ] = useState( null );
 	const groups = groupShippingRatesByMethodCurrencyRate( value );
 
 	/**
@@ -161,7 +162,15 @@ export default function EstimatedShippingRatesCard( {
 					countryOptions={ audienceCountries }
 					value={ prefilledGroup }
 					onChange={ getChangeHandler( prefilledGroup ) }
-					onDelete={ getDeleteHandler( prefilledGroup ) }
+					onEditClick={ () => {
+						setModalProps( {
+							isEdit: true,
+							countryOptions: audienceCountries,
+							initialValues: prefilledGroup,
+							onSubmit: getChangeHandler( prefilledGroup ),
+							onDelete: getDeleteHandler( prefilledGroup ),
+						} );
+					} }
 				/>
 			);
 		}
@@ -188,37 +197,41 @@ export default function EstimatedShippingRatesCard( {
 							countryOptions={ audienceCountries }
 							value={ group }
 							onChange={ getChangeHandler( group ) }
-							onDelete={ getDeleteHandler( group ) }
+							onEditClick={ () => {
+								setModalProps( {
+									isEdit: true,
+									countryOptions: audienceCountries,
+									initialValues: group,
+									onSubmit: getChangeHandler( group ),
+									onDelete: getDeleteHandler( group ),
+								} );
+							} }
 						/>
 					);
 				} ) }
 				{ remainingCountries.length >= 1 && (
 					<div>
-						<AppButtonModalTrigger
-							button={
-								<Button
-									isSecondary
-									icon={ <GridiconPlusSmall /> }
-								>
-									{ __(
-										'Add another rate',
-										'google-listings-and-ads'
-									) }
-								</Button>
-							}
-							modal={
-								<EditRateFormModal
-									countryOptions={ remainingCountries }
-									initialValues={ {
+						<Button
+							isSecondary
+							icon={ <GridiconPlusSmall /> }
+							onClick={ () => {
+								setModalProps( {
+									countryOptions: remainingCountries,
+									initialValues: {
 										countries: remainingCountries,
 										method: SHIPPING_RATE_METHOD.FLAT_RATE,
 										currency: currencyCode,
 										rate: 0,
-									} }
-									onSubmit={ handleAddSubmit }
-								/>
-							}
-						/>
+									},
+									onSubmit: handleAddSubmit,
+								} );
+							} }
+						>
+							{ __(
+								'Add another rate',
+								'google-listings-and-ads'
+							) }
+						</Button>
 					</div>
 				) }
 			</>
@@ -228,6 +241,12 @@ export default function EstimatedShippingRatesCard( {
 	return (
 		<Section.Card>
 			<Section.Card.Body>
+				{ modalProps && (
+					<EditRateFormModal
+						{ ...modalProps }
+						onRequestClose={ () => setModalProps( null ) }
+					/>
+				) }
 				<Section.Card.Title>
 					{ __(
 						'Estimated shipping rates',
