@@ -45,26 +45,6 @@ export default function EstimatedShippingRatesCard( {
 } ) {
 	const { code: currencyCode } = useStoreCurrency();
 	const [ modalProps, setModalProps ] = useState( null );
-	const groups = groupShippingRatesByMethodCurrencyRate( value );
-
-	/**
-	 * Event handler for adding new shipping rate group.
-	 *
-	 * Shipping rate group will be converted into shipping rates, and propagate up via `onChange`.
-	 *
-	 * @param {ShippingRateGroup} newGroup Shipping rate group.
-	 */
-	const handleAddSubmit = ( { countries, method, currency, rate } ) => {
-		const newShippingRates = countries.map( ( country ) => ( {
-			...defaultShippingRate,
-			country,
-			method,
-			currency,
-			rate,
-		} ) );
-
-		onChange( value.concat( newShippingRates ) );
-	};
 
 	/**
 	 * Get the `onChange` event handler for shipping rate group.
@@ -150,30 +130,7 @@ export default function EstimatedShippingRatesCard( {
 	 * and render an "Add rate button" if there are remaining countries.
 	 */
 	const renderGroups = () => {
-		if ( groups.length === 0 ) {
-			const prefilledGroup = {
-				countries: audienceCountries,
-				method: SHIPPING_RATE_METHOD.FLAT_RATE,
-				currency: currencyCode,
-				rate: undefined,
-			};
-			return (
-				<ShippingRateInputControl
-					countryOptions={ audienceCountries }
-					value={ prefilledGroup }
-					onChange={ getChangeHandler( prefilledGroup ) }
-					onEditClick={ () => {
-						setModalProps( {
-							isEdit: true,
-							countryOptions: audienceCountries,
-							initialValues: prefilledGroup,
-							onSubmit: getChangeHandler( prefilledGroup ),
-							onDelete: getDeleteHandler( prefilledGroup ),
-						} );
-					} }
-				/>
-			);
-		}
+		const groups = groupShippingRatesByMethodCurrencyRate( value );
 
 		/**
 		 * The remaining countries that do not have a shipping rate value yet.
@@ -187,6 +144,21 @@ export default function EstimatedShippingRatesCard( {
 
 			return ! exist;
 		} );
+
+		let shouldRenderRemaining = remainingCountries.length >= 1;
+
+		if ( groups.length === 0 ) {
+			groups.push( {
+				countries: audienceCountries,
+				method: SHIPPING_RATE_METHOD.FLAT_RATE,
+				currency: currencyCode,
+				rate: undefined,
+			} );
+
+			if ( shouldRenderRemaining ) {
+				shouldRenderRemaining = false;
+			}
+		}
 
 		return (
 			<>
@@ -209,21 +181,25 @@ export default function EstimatedShippingRatesCard( {
 						/>
 					);
 				} ) }
-				{ remainingCountries.length >= 1 && (
+				{ shouldRenderRemaining && (
 					<div>
 						<Button
 							isSecondary
 							icon={ <GridiconPlusSmall /> }
 							onClick={ () => {
+								const group = {
+									countries: remainingCountries,
+									method: SHIPPING_RATE_METHOD.FLAT_RATE,
+									currency: currencyCode,
+									rate: 0,
+								};
 								setModalProps( {
 									countryOptions: remainingCountries,
-									initialValues: {
-										countries: remainingCountries,
-										method: SHIPPING_RATE_METHOD.FLAT_RATE,
-										currency: currencyCode,
-										rate: 0,
-									},
-									onSubmit: handleAddSubmit,
+									initialValues: group,
+									onSubmit: getChangeHandler( {
+										...group,
+										countries: [],
+									} ),
 								} );
 							} }
 						>
